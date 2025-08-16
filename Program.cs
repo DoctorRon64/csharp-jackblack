@@ -1,5 +1,6 @@
 ﻿
 using _Utils;
+using BlackJack;
 using BlackJack.gameStates;
 using System.ComponentModel.Design;
 
@@ -15,8 +16,10 @@ internal class Program {
         gameCards = new();
 
         gameStateMachine.Add<MainMenuState>();
-        gameStateMachine.Add<BetState>();
+        gameStateMachine.Add<GameBetState>();
         gameStateMachine.Add<GameStartState>();
+        gameStateMachine.Add<GameChooseState>();
+        gameStateMachine.Add<GameOverState>();
         gameStateMachine.Switch<MainMenuState>();
     }
 
@@ -68,5 +71,36 @@ internal class GameCards {
         Console.WriteLine("\nDealer’s hand:");
         printer.PrintCardsSideBySide(new List<Card> { dealerHand.Cards.First() });
         Console.WriteLine("?? hidden");
+    }
+
+    public void ShowHands(bool revealDealer = false) {
+        Console.Clear();
+        printer.DrawDivider();
+        Console.WriteLine("");
+
+        printer.Color(ConsoleColor.Cyan);
+        Console.WriteLine("Your Hand:");
+        printer.PrintCardsSideBySide(playerHand.Cards.ToList());
+        Console.WriteLine($"Total: {playerHand.GetBestValue()}");
+        printer.DrawDivider();
+        Console.WriteLine("");
+
+        printer.Color(ConsoleColor.Red);
+        Console.WriteLine("Dealer's Hand:");
+        if (revealDealer) {
+            printer.PrintCardsSideBySide(dealerHand.Cards.ToList());
+            Console.WriteLine($"Total: {dealerHand.GetBestValue()}");
+        }
+        else {
+            printer.PrintCardsSideBySide(new List<Card> { dealerHand.Cards.First() });
+            Console.WriteLine("+ ??");
+        }
+
+        printer.DrawDivider();
+        Console.ResetColor();
+    }
+
+    public void Hit(bool player = true) {
+        (player ? playerHand : dealerHand).AddCard(deck.Draw());
     }
 }

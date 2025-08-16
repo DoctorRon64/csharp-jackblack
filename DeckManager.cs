@@ -1,21 +1,22 @@
 ﻿using _Utils;
 
 public class DeckManager {
-    public Stack<Card> Deck;
+    private const int MinThreshold = 15; // when fewer cards left, reshuffle/reset
+    private const int cardSizePerType = 14; // Ace (1) through King (13)
+    public Stack<Card> Deck { get; private set; }
 
     public DeckManager() {
         InitDeck();
+        ShuffleDeck();
     }
 
     private void InitDeck() {
         List<Card> list = new();
-        const int cardSizePerType = 14;
         int cardTypeSize = Enum.GetNames(typeof(CardType)).Length;
 
         for (int i = 0; i < cardTypeSize; i++) {
             for (int u = 1; u < cardSizePerType; u++) {
                 list.Add(new Card(u, (CardType)i));
-                //Console.WriteLine($"Added new card with Id: {newCard.Id} and is {newCard.Type}");
             }
         }
 
@@ -28,11 +29,21 @@ public class DeckManager {
         var list = Deck.ToList();
         list = Utils.Instance.Shuffle(list);
 
-        Deck = new Stack<Card>(list);     
-        //Console.WriteLine("Cards are Shuffled");
+        Deck = new Stack<Card>(list);
+    }
+
+    /// <summary>
+    /// Checks if the deck is running low and resets it if needed.
+    /// </summary>
+    public void ResetIfLow() {
+        if (Deck.Count <= MinThreshold) {
+            InitDeck();
+            ShuffleDeck();
+        }
     }
 
     public Card Draw() {
+        ResetIfLow(); // always check before drawing
         if (Deck.Count == 0) throw new InvalidOperationException("Deck is empty");
         return Deck.Pop();
     }
@@ -66,25 +77,34 @@ public class Card {
                 break;
         }
     }
+
+    public override string ToString() {
+        string name = Id switch {
+            1 => "Ace",
+            11 => "Jack",
+            12 => "Queen",
+            13 => "King",
+            _ => Id.ToString()
+        };
+        return $"{name} of {Type}";
+    }
 }
 
 public class Hand {
-    private List<Card> cards = new();
-
+    private readonly List<Card> cards = new();
+    public IReadOnlyList<Card> Cards => cards;
     public void AddCard(Card card) => cards.Add(card);
     public void Clear() => cards.Clear();
-    public IReadOnlyList<Card> Cards => cards;
 
     public int GetBestValue() {
         int total = cards.Sum(c => c.BaseValue);
         int aceCount = cards.Count(c => c.CardIsAce);
 
-        // Try upgrading Aces from 1 → 11 when it helps
+        // Upgrade Aces from 1 → 11 if it doesn’t bust
         while (aceCount > 0 && total + 10 <= 21) {
             total += 10;
             aceCount--;
         }
-
         return total;
     }
 

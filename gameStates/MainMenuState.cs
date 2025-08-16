@@ -2,24 +2,22 @@
 using System;
 
 namespace BlackJack.gameStates;
-internal class MainMenuState : BaseState<Program>
-{
-    public override void OnEnter()
-    {
+internal class MainMenuState : BaseState<Program> {
+    CardPrinter printer => Blackboard.gameCards.printer;
+
+    public override void OnEnter() {
         Console.Clear();
         DrawMenu();
     }
 
-    public override void OnUpdate()
-    {
+    public override void OnUpdate() {
         if (!Console.KeyAvailable) return;
 
         var key = Console.ReadKey(true).Key;
-        switch (key)
-        {
+        switch (key) {
             case ConsoleKey.S:
                 Console.Clear();
-                StateMachine?.Switch<BetState>();
+                StateMachine?.Switch<GameBetState>();
                 break;
             case ConsoleKey.Q:
                 StateMachine?.Quit();
@@ -31,14 +29,12 @@ internal class MainMenuState : BaseState<Program>
         }
     }
 
-    public override void OnExit()
-    {
-        C.Color(ConsoleColor.Yellow);
+    public override void OnExit() {
+       printer.Color(ConsoleColor.Yellow);
     }
 
-    private void DrawMenu()
-    {
-        C.Color(ConsoleColor.Yellow);
+    private void DrawMenu() {
+        printer.Color(ConsoleColor.Yellow);
         const char x = '\u2588';
         Console.WriteLine("===========================================");
         Console.WriteLine($"||| {x}{x}{x} {x}   {x}{x}{x} {x}{x}{x} {x} {x} {x}{x}{x} {x}{x}{x} {x}{x}{x} {x} {x} |||");
@@ -48,23 +44,23 @@ internal class MainMenuState : BaseState<Program>
         Console.WriteLine($"||| {x}{x}{x} {x}{x}{x} {x} {x} {x}{x}{x} {x} {x} {x}{x}  {x} {x} {x}{x}{x} {x} {x} |||");
         Console.WriteLine("===========================================");
 
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        printer.Color(ConsoleColor.Cyan);
         Console.WriteLine();
         Console.WriteLine();
 
         Console.Write($"Your Balance is: ");
-        Console.ForegroundColor = ConsoleColor.Yellow;
+        printer.Color(ConsoleColor.Yellow);
         Console.WriteLine($"{Blackboard.gameStats.Balance}$");
 
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        printer.Color(ConsoleColor.Cyan);
         Console.Write($"Your Current Bet is: ");
-        Console.ForegroundColor = ConsoleColor.Yellow;
+        printer.Color(ConsoleColor.Yellow);
         Console.WriteLine($"{Blackboard.gameStats.CurrentBet}$");
 
         Console.WriteLine();
-        Console.ForegroundColor = ConsoleColor.Green;
+        printer.Color(ConsoleColor.Green);
         Console.WriteLine("Press [S] to Start");
-        Console.ForegroundColor = ConsoleColor.DarkRed;
+        printer.Color(ConsoleColor.DarkRed);
         Console.WriteLine("Press [Q] to Quit");
         Console.WriteLine();
     }
