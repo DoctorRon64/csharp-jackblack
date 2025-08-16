@@ -14,6 +14,8 @@ internal class BetState : BaseState<Program> {
             C.Color(ConsoleColor.Cyan);
             bet = ReadInt("Enter your bet: ");
             if (bet <= 0 || bet > Blackboard.gameStats.Balance) {
+                Console.Clear();
+                ShowBalance();
                 C.Color(ConsoleColor.Red);
                 Console.WriteLine($"{bet}$ is an invalid bet. Try again.");
             }
@@ -24,8 +26,8 @@ internal class BetState : BaseState<Program> {
         Console.Write("Your bet is: ");
         C.Color(ConsoleColor.Yellow);
         Console.WriteLine($"{bet}$");
-        Task.Delay(1000);
-        StateMachine.Switch<MainMenuState>();
+        Task.Delay(3000);
+        StateMachine.Switch<GameStartState>();
     }
 
     private int ReadInt(string prompt) {
